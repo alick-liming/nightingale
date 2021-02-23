@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/n9e/win-collector/stra"
-	"github.com/n9e/win-collector/sys/funcs"
+	"github.com/didi/nightingale/src/modules/agent/stra"
+	"github.com/didi/nightingale/src/modules/agent/sys/funcs"
 
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/didi/nightingale/src/toolkits/http/render"

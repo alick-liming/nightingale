@@ -1,5 +1,5 @@
 logger:
-    dir: logs/collector
+    dir: logs/agent
     level: WARNING
     keepHours: 2
   

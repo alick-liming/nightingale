@@ -7,10 +7,6 @@ import (
 	"fmt"
 	"sync"
 
-	// "github.com/n9e/win-collector/stra"
-	// "github.com/n9e/win-collector/sys"
-	// "github.com/n9e/win-collector/sys/identity"
-
 	"github.com/didi/nightingale/src/modules/agent/stra"
 	"github.com/didi/nightingale/src/modules/agent/sys"
 	"github.com/didi/nightingale/src/modules/agent/sys/identity"

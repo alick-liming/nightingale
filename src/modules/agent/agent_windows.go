@@ -9,18 +9,18 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/n9e/win-collector/cache"
-	"github.com/n9e/win-collector/config"
-	"github.com/n9e/win-collector/sys/identity"
+	"github.com/didi/nightingale/src/modules/agent/cache"
+	"github.com/didi/nightingale/src/modules/agent/config"
+	"github.com/didi/nightingale/src/modules/agent/sys/identity"
 
-	"github.com/n9e/win-collector/http/routes"
-	"github.com/n9e/win-collector/report"
-	"github.com/n9e/win-collector/stra"
-	"github.com/n9e/win-collector/sys"
-	"github.com/n9e/win-collector/sys/funcs"
-	"github.com/n9e/win-collector/sys/plugins"
-	"github.com/n9e/win-collector/sys/ports"
-	"github.com/n9e/win-collector/sys/procs"
+	"github.com/didi/nightingale/src/modules/agent/http/routes"
+	"github.com/didi/nightingale/src/modules/agent/report"
+	"github.com/didi/nightingale/src/modules/agent/stra"
+	"github.com/didi/nightingale/src/modules/agent/sys"
+	"github.com/didi/nightingale/src/modules/agent/sys/funcs"
+	"github.com/didi/nightingale/src/modules/agent/sys/plugins"
+	"github.com/didi/nightingale/src/modules/agent/sys/ports"
+	"github.com/didi/nightingale/src/modules/agent/sys/procs"
 
 	tlogger "github.com/didi/nightingale/src/common/loggeri"
 	"github.com/didi/nightingale/src/toolkits/http"
@@ -93,7 +93,7 @@ func run() {
 
 	r := gin.New()
 	routes.Config(r)
-	http.Start(r, "collector", cfg.Logger.Level)
+	http.Start(r, "agent", cfg.Logger.Level)
 	ending()
 }
 
