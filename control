@@ -142,7 +142,11 @@ build_one()
 {
 	mod=$1
 	echo -n "building ${mod} ... "
-	go build -ldflags "-X main.version=${version}" -o n9e-${mod} src/modules/${mod}/${mod}.go
+	if [ "x${mod}" = "xagent" ]; then
+		go build -ldflags "-X main.version=${version}" -o n9e-${mod} ./src/modules/${mod}
+	else
+		go build -ldflags "-X main.version=${version}" -o n9e-${mod} src/modules/${mod}/${mod}.go
+	fi
 	echo "done"
 }
 
@@ -150,7 +154,11 @@ build_local_one()
 {
 	mod=$1
 	echo -n "building ${mod} ... "
-	go build -mod=vendor -ldflags "-X main.version=${version}" -o n9e-${mod} src/modules/${mod}/${mod}.go
+	if [ "x${mod}" = "xagent" ]; then
+		go build -mod=vendor -ldflags "-X main.version=${version}" -o n9e-${mod} ./src/modules/${mod}
+	else
+		go build -mod=vendor -ldflags "-X main.version=${version}" -o n9e-${mod} src/modules/${mod}/${mod}.go
+	fi
 	echo "done"
 }
 
@@ -242,7 +250,7 @@ exec()
       fi
     done
   else
-  echo $1
+  	echo $1
     $1
   fi
 }
