@@ -1,6 +1,4 @@
-// +build windows
-
-package ports
+package procs
 
 import (
 	"time"
@@ -21,7 +19,7 @@ func loopDetect() {
 }
 
 func detect() {
-	ps := stra.GetPortCollects()
-	DelNoPortCollect(ps)
-	AddNewPortCollect(ps)
+	ps := stra.GetProcCollects()
+	DelNoProcCollect(ps)
+	AddNewProcCollect(ps)
 }
