@@ -261,7 +261,7 @@ func GetPatAndTimeFormat(tf string) (string, string) {
 		pat = `(2[0-9]{3})(0[1-9]|1[012])([012][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
 		timeFormat = "20060102 15:04:05"
 	case "mmm dd HH:MM:SS":
-		pat = `[JFMASONDjfmasond][a-zA-Z]{2}\s+([1-9]|[1-2][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
+		pat = `[JFMASONDjfmasond][a-zA-Z]{2}\s+(0[1-9]|[1-9]|[1-2][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
 		timeFormat = "Jan 2 15:04:05"
 	case "mmdd HH:MM:SS":
 		pat = `(0[1-9]|1[012])([012][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
@@ -269,9 +269,9 @@ func GetPatAndTimeFormat(tf string) (string, string) {
 	case "dd/mm/yyyy:HH:MM:SS":
 		pat = `([012][0-9]|3[01])/(0[1-9]|1[012])/(2[0-9]{3}):([01][0-9]|2[0-4])(:[012345][0-9]){2}`
 		timeFormat = "02/01/2006:15:04:05"
-        case "mm-dd HH:MM:SS":
-                pat = `(0[1-9]|1[012])-([012][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
-                timeFormat = "01-02 15:04:05"
+	case "mm-dd HH:MM:SS":
+		pat = `(0[1-9]|1[012])-([012][0-9]|3[01])\s([01][0-9]|2[0-4])(:[012345][0-9]){2}`
+		timeFormat = "01-02 15:04:05"
 	default:
 		logger.Errorf("match time pac failed : [timeFormat:%s]", tf)
 		return "", ""
