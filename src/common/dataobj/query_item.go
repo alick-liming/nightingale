@@ -31,6 +31,14 @@ type QueryDataForUI struct {
 	Comparisons []int64  `json:"comparisons"` //环比多少时间
 }
 
+// md-20210312
+type QueryDataForUIFullMatch struct {
+	QueryDataForUI
+	Tagkv          []TagPair `json:"tagkv"`
+	StartInclusive time.Time `json:"-"`
+	EndExclusive   time.Time `json:"-"`
+}
+
 type QueryDataForUIResp struct {
 	Start      int64      `json:"start"`
 	End        int64      `json:"end"`

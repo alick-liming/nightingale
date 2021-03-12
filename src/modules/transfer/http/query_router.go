@@ -1,6 +1,8 @@
 package http
 
 import (
+	"fmt"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/didi/nightingale/src/modules/transfer/backend"
 	"github.com/didi/nightingale/src/toolkits/http/render"
@@ -68,6 +70,104 @@ func QueryDataForUI(c *gin.Context) {
 					d.Values[j].Timestamp += comparison
 				}
 
+				data := &dataobj.QueryDataForUIResp{
+					Start:      d.Start,
+					End:        d.End,
+					Endpoint:   d.Endpoint,
+					Nid:        d.Nid,
+					Counter:    d.Counter,
+					DsType:     d.DsType,
+					Step:       d.Step,
+					Values:     d.Values,
+					Comparison: comparison,
+				}
+				respData = append(respData, data)
+			}
+		}
+	}
+
+	render.Data(c, respData, nil)
+}
+
+// QueryDataForUIFullMatch md-20210312
+func QueryDataForUIFullMatch(c *gin.Context) {
+	//single full match, not slice
+	stats.Counter.Set("counter.qp10s", 1)
+	var recv dataobj.QueryDataForUIFullMatch
+	errors.Dangerous(c.ShouldBindJSON(&recv))
+
+	dataSource, err := backend.GetDataSourceFor("")
+	if err != nil {
+		logger.Warningf("could not find datasource")
+		render.Message(c, err)
+		return
+	}
+
+	// 此处考虑加一个recvs的结构体
+	var fullMatchRecvs []dataobj.IndexByFullTagsRecv
+	fullMatchRecv := dataobj.IndexByFullTagsRecv{
+		Endpoints:      recv.Endpoints,
+		Nids:           recv.Nids,
+		Metric:         recv.Metric,
+		Tagkv:          recv.Tagkv,
+		Start:          recv.Start,
+		End:            recv.End,
+		StartInclusive: recv.StartInclusive,
+		EndExclusive:   recv.EndExclusive,
+	}
+	fullMatchRecvs = append(fullMatchRecvs, fullMatchRecv)
+	fullMatchResp, _ := dataSource.QueryIndexByFullTags(fullMatchRecvs)
+	// querydata
+	if len(fullMatchResp) != 1 {
+		// 提示错误 return
+		logger.Warningf("full match len err:%v", fullMatchResp)
+		render.Message(c, fmt.Errorf("full match err"))
+		return
+
+	}
+
+	var respData []*dataobj.QueryDataForUIResp
+	start := recv.Start
+	end := recv.End
+	input := dataobj.QueryDataForUI{
+		Start:       recv.Start,
+		End:         recv.End,
+		Metric:      recv.Metric,
+		Endpoints:   recv.Endpoints,
+		Nids:        recv.Nids,
+		Tags:        fullMatchResp[0].Tags,
+		Step:        fullMatchResp[0].Step,
+		DsType:      fullMatchResp[0].DsType,
+		GroupKey:    recv.GroupKey,
+		AggrFunc:    recv.AggrFunc,
+		Comparisons: recv.Comparisons,
+	}
+
+	resp := dataSource.QueryDataForUI(input)
+	for _, d := range resp {
+		data := &dataobj.QueryDataForUIResp{
+			Start:    d.Start,
+			End:      d.End,
+			Endpoint: d.Endpoint,
+			Nid:      d.Nid,
+			Counter:  d.Counter,
+			DsType:   d.DsType,
+			Step:     d.Step,
+			Values:   d.Values,
+		}
+		respData = append(respData, data)
+	}
+
+	if len(input.Comparisons) > 1 {
+		for i := 1; i < len(input.Comparisons); i++ {
+			comparison := input.Comparisons[i]
+			input.Start = start - comparison
+			input.End = end - comparison
+			res := dataSource.QueryDataForUI(input)
+			for _, d := range res {
+				for j := range d.Values {
+					d.Values[j].Timestamp += comparison
+				}
 				data := &dataobj.QueryDataForUIResp{
 					Start:      d.Start,
 					End:        d.End,
