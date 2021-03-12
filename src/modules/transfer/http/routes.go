@@ -20,6 +20,8 @@ func Config(r *gin.Engine) {
 		sys.POST("/push", PushData)
 		sys.POST("/data", QueryData)
 		sys.POST("/data/ui", QueryDataForUI)
+
+		sys.POST("/data/ui-tags", QueryDataForUISplitCounter)
 	}
 
 	index := r.Group("/api/index")

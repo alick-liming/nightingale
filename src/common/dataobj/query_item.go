@@ -43,6 +43,20 @@ type QueryDataForUIResp struct {
 	Comparison int64      `json:"comparison"`
 }
 
+type QueryDataForUIRespSplitCounter struct {
+	Start      int64             `json:"start"`
+	End        int64             `json:"end"`
+	Endpoint   string            `json:"endpoint"`
+	Nid        string            `json:"nid"`
+	Counter    string            `json:"counter"`
+	Metric     string            `json:"metric"`
+	Tags       map[string]string `json:"tags"`
+	DsType     string            `json:"dstype"`
+	Step       int               `json:"step"`
+	Values     []*RRDData        `json:"values"`
+	Comparison int64             `json:"comparison"`
+}
+
 type QueryDataResp struct {
 	Data []*TsdbQueryResponse
 	Msg  string

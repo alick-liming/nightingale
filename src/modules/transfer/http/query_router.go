@@ -1,6 +1,8 @@
 package http
 
 import (
+	"strings"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/didi/nightingale/src/modules/transfer/backend"
 	"github.com/didi/nightingale/src/toolkits/http/render"
@@ -44,6 +46,7 @@ func QueryDataForUI(c *gin.Context) {
 	}
 	resp := dataSource.QueryDataForUI(input)
 	for _, d := range resp {
+
 		data := &dataobj.QueryDataForUIResp{
 			Start:    d.Start,
 			End:      d.End,
@@ -85,6 +88,99 @@ func QueryDataForUI(c *gin.Context) {
 	}
 
 	render.Data(c, respData, nil)
+}
+
+func QueryDataForUISplitCounter(c *gin.Context) {
+	stats.Counter.Set("data.ui.qp10s", 1)
+	var input dataobj.QueryDataForUI
+	var respData []*dataobj.QueryDataForUIRespSplitCounter
+
+	dangerous(c.ShouldBindJSON(&input))
+	start := input.Start
+	end := input.End
+
+	dataSource, err := backend.GetDataSourceFor("")
+	if err != nil {
+		logger.Warningf("could not find datasource")
+		render.Message(c, err)
+		return
+	}
+	resp := dataSource.QueryDataForUI(input)
+	for _, d := range resp {
+		metric, tags, err := CounterToMetricTags(d.Counter)
+		if err != nil {
+			logger.Error(err)
+			continue
+		}
+		data := &dataobj.QueryDataForUIRespSplitCounter{
+			Start:    d.Start,
+			End:      d.End,
+			Endpoint: d.Endpoint,
+			Nid:      d.Nid,
+			Counter:  d.Counter,
+			Metric:   metric,
+			Tags:     tags,
+			DsType:   d.DsType,
+			Step:     d.Step,
+			Values:   d.Values,
+		}
+		respData = append(respData, data)
+	}
+
+	if len(input.Comparisons) > 1 {
+		for i := 1; i < len(input.Comparisons); i++ {
+			comparison := input.Comparisons[i]
+			input.Start = start - comparison
+			input.End = end - comparison
+			res := dataSource.QueryDataForUI(input)
+			for _, d := range res {
+				for j := range d.Values {
+					d.Values[j].Timestamp += comparison
+				}
+
+				metric, tags, err := CounterToMetricTags(d.Counter)
+				if err != nil {
+					logger.Error(err)
+					continue
+				}
+
+				data := &dataobj.QueryDataForUIRespSplitCounter{
+					Start:      d.Start,
+					End:        d.End,
+					Endpoint:   d.Endpoint,
+					Nid:        d.Nid,
+					Counter:    d.Counter,
+					Metric:     metric,
+					Tags:       tags,
+					DsType:     d.DsType,
+					Step:       d.Step,
+					Values:     d.Values,
+					Comparison: comparison,
+				}
+				respData = append(respData, data)
+			}
+		}
+	}
+
+	render.Data(c, respData, nil)
+}
+
+func CounterToMetricTags(counter string) (string, map[string]string, error) {
+	if counter == "" {
+		return "", nil, nil
+	}
+	counterSplit := strings.Split(counter, "/")
+	metric := counterSplit[0]
+	if len(counterSplit) == 1 {
+		return metric, nil, nil
+	}
+
+	tags, err := dataobj.SplitTagsString(counterSplit[1])
+	if err != nil {
+		return metric, nil, err
+	}
+
+	return metric, tags, nil
 }
 
 func GetMetrics(c *gin.Context) {
